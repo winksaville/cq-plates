@@ -1,36 +1,23 @@
 import cadquery as cq # type: ignore
 
+bw = 200  # bead width
 nd = 0.4  # Nozzle Diameter
+mt = 0.05 # minimum thickness
+dt = 0.05 # delta thickness
 length = 50
 width  = 20
 gap = 5
+count = bw / (width + gap)
+plates = []
 
-p1 = (
-    cq.Workplane("XY", origin=(-(width + gap), 0, 0))
-    .rect(width, length)
-    .extrude(nd/2)
-)
-#show_object(p1)
-
-p2 = (
-    cq.Workplane("XY", origin=(0, 0, 0))
-    .rect(width, length)
-    .extrude(nd)
-)
-#show_object(p2)
-
-p3 = (
-    cq.Workplane("XY", origin=(width + gap, 0, 0))
-    .rect(width, length)
-    .extrude(nd * 2)
-)
-#show_object(p3)
-
+for i in range(0, int(count)):
+    p = (
+        cq.Workplane("XY", origin=(((i * (width + gap)) - (bw / 2)), 0, 0))
+        .rect(width, length)
+        .extrude(mt+(i*dt))
+    )
+    plates.append(p.val())
 
 # Combine the objects so they all can be slected and exported to stl
-#
-# Note: you must use .val() otherwise the following generates
-#       a "AttributeError: 'Workplane' object has no 'wapped'"
-#   all = cq.Compound.makeCompound([p1, p2, p3])
-all = cq.Compound.makeCompound([p1.val(), p2.val(), p3.val()])
+all = cq.Compound.makeCompound(plates)
 show_object(all)
